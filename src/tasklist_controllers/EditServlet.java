@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import models.Task;
 import utils.DBUtil;
 
 /**
@@ -38,16 +39,16 @@ public class EditServlet extends HttpServlet {
         em.close();
 
         // メッセージ情報とセッションIDをリクエストスコープに登録
-        request.setAttribute("message", t);
+        request.setAttribute("task", t);
         request.setAttribute("_token", request.getSession().getId());
 
         // メッセージIDをセッションスコープに登録
         // メッセージデータが存在しているときのみ
         if(t != null) {
-            request.getSession().setAttribute("message_id", t.getId());
+            request.getSession().setAttribute("task_id", t.getId());
         }
 
-        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/messages/edit.jsp");
+        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/task/edit.jsp");
         rd.forward(request, response);
     }
 }

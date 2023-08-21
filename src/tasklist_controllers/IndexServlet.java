@@ -42,19 +42,19 @@ public class IndexServlet extends HttpServlet {
             } catch(NumberFormatException e) {}
 
             // 最大件数と開始位置を指定してタスクを取得
-            List<Task> tasks = em.createNamedQuery("getAllTasks", Task.class)
+            List<Task> task = em.createNamedQuery("getAlltask", Task.class)
                                        .setFirstResult(15 * (page - 1))
                                        .setMaxResults(15)
                                        .getResultList();
 
             // 全件数を取得
-            long tasks_count = (long)em.createNamedQuery("getTasksCount", Long.class)
+            long task_count = (long)em.createNamedQuery("gettaskCount", Long.class)
                                           .getSingleResult();
 
             em.close();
 
-            request.setAttribute("tasks", tasks);
-            request.setAttribute("tasks_count", tasks_count);     // 全件数
+            request.setAttribute("task", task);
+            request.setAttribute("task_count", task_count);     // 全件数
             request.setAttribute("page", page);                         // ページ数
 
 
@@ -65,7 +65,7 @@ public class IndexServlet extends HttpServlet {
                 request.getSession().removeAttribute("flush");
             }
 
-            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/tasks/index.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/task/index.jsp");
             rd.forward(request, response);
         }
 
