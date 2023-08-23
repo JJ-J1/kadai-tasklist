@@ -1,4 +1,4 @@
-package tasklist_controllers;
+package controllers;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,13 +42,13 @@ public class IndexServlet extends HttpServlet {
             } catch(NumberFormatException e) {}
 
             // 最大件数と開始位置を指定してタスクを取得
-            List<Task> task = em.createNamedQuery("getAlltask", Task.class)
+            List<Task> task = em.createNamedQuery("getAllTask", Task.class)
                                        .setFirstResult(15 * (page - 1))
                                        .setMaxResults(15)
                                        .getResultList();
 
             // 全件数を取得
-            long task_count = (long)em.createNamedQuery("gettaskCount", Long.class)
+            long task_count = (long)em.createNamedQuery("getTaskCount", Long.class)
                                           .getSingleResult();
 
             em.close();

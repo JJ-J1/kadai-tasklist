@@ -1,4 +1,4 @@
-package tasklist_controllers;
+package controllers;
 
 import java.io.IOException;
 

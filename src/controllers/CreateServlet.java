@@ -1,4 +1,4 @@
-package tasklist_controllers;
+package controllers;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -17,16 +17,16 @@ import models.validators.TaskValidator;
 import utils.DBUtil;
 
 /**
- * Servlet implementation class UpdateServlet
+ * Servlet implementation class CreateServlet
  */
-@WebServlet("/update")
-public class UpdateServlet extends HttpServlet {
+@WebServlet("/create")
+public class CreateServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public UpdateServlet() {
+    public CreateServlet() {
         super();
     }
 
@@ -37,47 +37,40 @@ public class UpdateServlet extends HttpServlet {
         String _token = request.getParameter("_token");
         if(_token != null && _token.equals(request.getSession().getId())) {
             EntityManager em = DBUtil.createEntityManager();
+            em.getTransaction().begin();
 
-         // セッションスコープからメッセージのIDを取得して
-            // 該当のIDのメッセージ1件のみをデータベースから取得
-            Task t = em.find(Task.class, (Integer)(request.getSession().getAttribute("task_id")));
+            Task t = new Task();
 
-            // フォームの内容を各フィールドに上書き
             String content = request.getParameter("content");
             t.setContent(content);
 
             Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-            t.setUpdated_at(currentTime);       // 更新日時のみ上書き
+            t.setCreated_at(currentTime);
+            t.setUpdated_at(currentTime);
 
-            // バリデーションを実行してエラーがあったら編集画面のフォームに戻る
+         // バリデーションを実行してエラーがあったら新規登録のフォームに戻る
             List<String> errors = TaskValidator.validate(t);
             if(errors.size() > 0) {
                 em.close();
 
                 // フォームに初期値を設定、さらにエラーメッセージを送る
                 request.setAttribute("_token", request.getSession().getId());
-                request.setAttribute("task" , t);
+                request.setAttribute("task", t);
                 request.setAttribute("errors", errors);
 
-                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/task/edit.jsp");
+                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/task/new.jsp");
                 rd.forward(request, response);
             } else {
+                // データベースに保存
+                em.persist(t);
+                em.getTransaction().commit();
+                request.getSession().setAttribute("flush", "登録が完了しました。");
+                em.close();
 
-            // データベースを更新
-            em.getTransaction().begin();
-            em.getTransaction().commit();
+                // indexのページにリダイレクト
+                response.sendRedirect(request.getContextPath() + "/index");
+            }
 
-            request.getSession().setAttribute("flush", "更新が完了しました。");       // ここを追記
-            em.close();
-
-            // セッションスコープ上の不要になったデータを削除
-            request.getSession().removeAttribute("task_id");
-
-            // indexページへリダイレクト
-            response.sendRedirect(request.getContextPath() + "/index");
         }
     }
-
-}
-
 }
